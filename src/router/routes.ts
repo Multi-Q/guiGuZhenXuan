@@ -1,4 +1,4 @@
-import { type RouteRecordRaw } from "vue-router";
+import type {  RouteRecordRaw } from "vue-router";
 export const  constanRoute:RouteRecordRaw[]=[
     {path:"/",component:()=>import("@/views/home/index.vue"),name:"layout"},
     {path:"/login",component:()=>import("@/views/login/index.vue"),name:"login"},
