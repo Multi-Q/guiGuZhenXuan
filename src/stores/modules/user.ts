@@ -3,12 +3,14 @@ import { SET_TOKEN,GET_ITEM } from "@/utils/token";
 import { reqLogin } from "@/api/user";
 import type { loginForm, loginResponseData } from "@/api/user/type";
 import type { UserState } from "@/stores/modules/types/type";
+// 引入常量路由
+import { constanRoute } from "@/router/routes";
 
 const useUserStore = defineStore("user", {
     state: (): UserState => {
         return {
             token: GET_ITEM(),
-
+            menuRoutes:constanRoute
 
         };
     },
