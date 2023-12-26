@@ -1,8 +1,8 @@
 <template>
     <div id="login-container">
         <el-row>
-            <el-col :Span="12" :xs="0">站位格子</el-col>
-            <el-col :Span="12" :xs="24">
+            <el-col :span="12" :xs="0"></el-col>
+            <el-col :span="12" :xs="24">
                 <el-form class="login-form" :rules="rules" :model="loginForm" ref="loginForms">
                     <h1>Hello</h1>
                     <h2>欢迎来到硅谷甄选</h2>
@@ -25,20 +25,20 @@
 
 <script setup lang="ts">
 import { User, Lock } from '@element-plus/icons-vue';
-import { useRouter } from 'vue-router';
-import { ref, reactive } from "vue";
+import { useRouter, useRoute } from 'vue-router';
+import { ref, reactive, onMounted } from "vue";
 defineOptions({ name: "Login" });
 import useUserStore from "@/stores/modules/user";
-import type { loginForm } from '@/api/user/type';
 import { getTime } from "@/utils/time";
 
 const userStore = useUserStore();
 const router = useRouter();
+const route = useRoute();
 
 // 登陆表单
-const loginForm = reactive<loginForm>({
+const loginForm = reactive<any>({
     username: "admin",
-    password: "111111"
+    password: "atguigu123"
 });
 // 表单校验对象
 const rules = reactive({
@@ -79,13 +79,14 @@ const loginForms = ref();
  * @param  null
  * @return {Promise<void>} null
  */
-async function login():Promise<void> {
+async function login(): Promise<void> {
     loading.value = true;
     await loginForms.value.validate();
     // 通知仓库发送登录请求
     try {
         await userStore.userLogin(loginForm);
-        router.push("/");
+        // 判断登录的时候，路由路径中是否有query参数，如果有就往query参数跳转，没有就跳转到首页
+        router.push((route.query.redirect as string) || "/");
         ElNotification({ type: "success", message: "登陆成功", title: `Hi,${getTime()}好` });
     } catch (err) {
         loading.value = false;

@@ -40,8 +40,6 @@ const route = useRoute();
 const userStore = useUserStore();
 const layoutSettingStore = useLayoutSettingStore();
 
-onMounted(()=>{console.log(route);
-})
 
 </script>
 
@@ -96,7 +94,6 @@ onMounted(()=>{console.log(route);
         height: calc(100vh - $base-tabbar-height);
         padding: 20px;
         overflow: auto;
-        background-color: green;
         transition: all 0.3s;
 
         &.fold {

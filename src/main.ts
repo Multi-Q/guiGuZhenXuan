@@ -7,7 +7,7 @@ import router from './router/index';
 import globalComponent from "@/components/index";
 import "@/style/index.scss";
 import pinia from "@/stores/index";
-
+import permission from "@/permission";
 const app = createApp(App)
 
 app.use(globalComponent);

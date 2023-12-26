@@ -1,5 +1,5 @@
 import axios from "axios";
-import { ElMessage } from "element-plus";
+import useUserStore from "@/stores/modules/user";
 
 const request = axios.create({
     baseURL: import.meta.env.VITE_APP_BASE_API,
@@ -8,17 +8,17 @@ const request = axios.create({
 
 request.interceptors.request.use(
     config => {
-        // config.headers.Authorization=`Bear `;
+        const userStore = useUserStore();
+        if (userStore.token) {
+            config.headers.token = userStore.token;
+        }
         return config;
-    },
-    err => {
-        console.log(err);
     }
 );
 
 request.interceptors.response.use(
     res => {
-        
+
         return res.data;
     },
     err => {
@@ -41,11 +41,7 @@ request.interceptors.response.use(
             default:
                 msg = "无网络";
         }
-        // ElMessage({
-        //     message: '登陆失败',
-        //     type: 'error',
-        // });
-        alert("失败")
+        ElMessage({ message: '登陆失败', type: 'error', });
         return Promise.reject(err);
     }
 );
