@@ -24,7 +24,7 @@ request.interceptors.response.use(
     err => {
         //处理网络错误
         let msg: string = '';
-        let status: number = err.response.status;
+        let status: number = err?.response?.status||0 ;
         switch (status) {
             case 401:
                 msg = "token过期";
@@ -41,7 +41,7 @@ request.interceptors.response.use(
             default:
                 msg = "无网络";
         }
-        ElMessage({ message: '登陆失败', type: 'error', });
+        ElMessage({ message: err?.message || "出现错误-utils/request", type: 'error', });
         return Promise.reject(err);
     }
 );
