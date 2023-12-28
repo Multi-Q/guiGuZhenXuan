@@ -1,5 +1,6 @@
 import axios from "axios";
 import useUserStore from "@/stores/modules/user";
+import { useRouter } from "vue-router";
 
 const request = axios.create({
     baseURL: import.meta.env.VITE_APP_BASE_API,
@@ -18,16 +19,17 @@ request.interceptors.request.use(
 
 request.interceptors.response.use(
     res => {
-
         return res.data;
     },
     err => {
         //处理网络错误
         let msg: string = '';
         let status: number = err?.response?.status||0 ;
+        const router=useRouter();
         switch (status) {
             case 401:
                 msg = "token过期";
+                router.push("/login");
                 break;
             case 403:
                 msg = '无权访问';
@@ -40,6 +42,7 @@ request.interceptors.response.use(
                 break;
             default:
                 msg = "无网络";
+                router.push("/login");
         }
         ElMessage({ message: err?.message || "出现错误-utils/request", type: 'error', });
         return Promise.reject(err);

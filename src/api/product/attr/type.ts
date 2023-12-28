@@ -30,10 +30,11 @@ export interface attrValue {
     id?: number,
     valueName: string,
     attrId?: number,
+    flag?:boolean
 }
 
 export interface attr {
-    id?: number,
+    id?: number|string,
     attrName: string,
     categoryId: number|string,
     categoryLevel: number,
