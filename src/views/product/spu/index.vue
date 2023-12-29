@@ -12,7 +12,7 @@
                     <el-table-column label="SPU操作">
                         <template #="{ row, $index }">
                             <el-button type="primary" size="small" icon="Plus" title="添加SKU"></el-button>
-                            <el-button type="warning" size="small" icon="Edit" title="修改SPU" @click="updateSpu"></el-button>
+                            <el-button type="warning" size="small" icon="Edit" title="修改SPU" @click="updateSpu(row)"></el-button>
                             <el-button type="info" size="small" icon="View" title="查看SKU列表"></el-button>
                             <el-button type="danger" size="small" icon="Delete" title="删除SPU"></el-button>
                         </template>
@@ -25,7 +25,7 @@
             </div>
 
             <!-- 添加spu -->
-            <SpuForm v-show="scene === 1" @changeScene="changeScene"></SpuForm>
+            <SpuForm v-show="scene === 1" ref="spu" @changeScene="changeScene"></SpuForm>
 
             <!-- 添加sku -->
             <SkuForm v-show="scene === 2"></SkuForm>
@@ -51,11 +51,10 @@ let scene = ref<number>(0); //0显示spu ，1添加或修改spu，2添加sku结�
 let total = ref<number>(0);
 // 存储已有的spu数据
 let records = ref<spuData[]>([]);
+const spu=ref<any>();
 
 async function getHasSpu() {
     const res: hasSpuResponseData = await reqHasSpu(pageNo.value, pageSize.value,categoryStore.c3Id);
-    console.log(res);
-
     if (res.code === 200) {
         records.value = res.data.records;
         total.value = res.data.total;
@@ -81,8 +80,10 @@ function changeScene(val: number) {
     scene.value = val;
 }
 
-function updateSpu(){
+function updateSpu(row:spuData){
     scene.value=1;
+    //调用子组件实例方法获取完整已有的spu数据
+    spu.value.initHasSpuData(row);
 }
 </script>
 

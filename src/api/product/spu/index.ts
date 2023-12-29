@@ -9,7 +9,12 @@ enum API {
     // 获取某一个spu下全部已有的销售属性
     SPU_HAS_SALE_ATTR_URL = "/admin/product/spuSaleAttrList",
     // 获取整个项目全部的销售属性
-    ALL_SALE_ATTR_URL = "/admin/product/baseSaleAttrList"
+    ALL_SALE_ATTR_URL = "/admin/product/baseSaleAttrList",
+    // 添加spu
+    SAVE_SPU_URL = "/admin/product/saveSpuInfo",
+    // 更新已有的spu
+    UPDATE_SPU_URL = "/admin/product/saveSpuInfo",
+
 
 }
 
@@ -23,3 +28,10 @@ export const reqspuHasSaleAttr = (spuId: number) => axios.get<any, saleAttrRespo
 
 export const reqAllSaleAttr = () => axios.get<any, hasSaleAttrResponseData>(API.ALL_SALE_ATTR_URL);
 
+export const reqSaveOrUpdateSpu = (data: any) => {
+    if (data.id) {
+       return  axios.post<any,any>(API.SAVE_SPU_URL,data);
+    }else{
+        return  axios.post<any,any>(API.UPDATE_SPU_URL,data);
+    }
+}

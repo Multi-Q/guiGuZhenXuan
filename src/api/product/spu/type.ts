@@ -10,9 +10,9 @@ export interface spuData {
     spuName: string,
     description: string,
     category3Id: string | number,
-    tmId: number,
-    spuSaleAttrList: null,
-    spuImageList: null
+    tmId: number|string,
+    spuSaleAttrList: null|spuImg[],
+    spuImageList: null|saleAttr[]
 
 }
 
@@ -29,7 +29,7 @@ export interface hasSpuResponseData extends responseData {
 }
 
 // 品牌数据类型
-interface trademark {
+export interface trademark {
     id: number,
     tmName: string,
     logoUrl: string,
@@ -40,13 +40,15 @@ export interface allTrademark extends responseData {
 }
 
 // 商品图片类型
- interface spuImg {
-    id: number,
-    createTime: string,
-    updateTime: string,
-    spuId: string,
-    imgName: string,
-    imgUrl: string
+ export interface spuImg {
+    id?: number,
+    createTime?: string,
+    updateTime?: string,
+    spuId?: string,
+    imgName?: string,
+    imgUrl?: string,
+    name?:string,
+    url?:string
 }
 
 // spu照片墙数据类型
@@ -57,21 +59,21 @@ export interface spuHasImg extends responseData{
 // 销售属性值对象
 interface saleAttrValue{
     id?:number,
-    createTime:null,
-    updateTime:null,
-    spuId:number,
+    createTime?:null,
+    updateTime?:null,
+    spuId?:number,
     baseSaleAttrId:number,
     saleAttrValueName:string,
-    saleAttrName:string,
-    isChecked:null
+    saleAttrName?:string,
+    isChecked?:null
 }
 
 // 销售属性对象
- interface saleAttr{
+ export interface saleAttr{
     id?:number,
-    createTime:null,
-    updateTime:null,
-    spuId:number,
+    createTime?:null,
+    updateTime?:null,
+    spuId?:number,
     baseSaleAttrId:number,
     saleAttrName:string,
     spuSaleAttrValueList:saleAttrValue[]
@@ -80,7 +82,7 @@ interface saleAttrValue{
 export interface saleAttrResponseData extends responseData{
     data:saleAttr[]
 }
-interface hasSaleAttr{
+export interface hasSaleAttr{
     id:number,
     name:string
 }
