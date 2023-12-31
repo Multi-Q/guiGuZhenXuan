@@ -35,9 +35,12 @@
                 <el-table-column label="销售属性值">
                     <!-- row即为当前spu已有的销售属性对象 -->
                     <template #="{ row, $index }">
-                        <el-tag v-for="item in row.spuSaleAttrValueList" :key="item.id" class="mx-1" closable
-                            style="margin-right: 5px;">{{ item.saleAttrValueName }}</el-tag>
-                        <el-button type="success" icon="Plus" style="height: 24px;"></el-button>
+                        <el-tag @close="row.spuSaleAttrValueList.splice($index, 1)" v-for="item in row.spuSaleAttrValueList"
+                            :key="item.id" class="mx-1" closable style="margin-right: 5px;">{{ item.saleAttrValueName
+                            }}</el-tag>
+                        <el-input v-if="row.flag" @blur="toLook(row)" v-model="row.saleAttrValue" placeholder="请输入属性值"
+                            style="width:100px;"></el-input>
+                        <el-button v-else @click="toEdit(row)" type="success" icon="Plus" style="height: 24px;"></el-button>
                     </template>
                 </el-table-column>
                 <el-table-column label="操作" width="120px">
@@ -49,7 +52,7 @@
             </el-table>
         </el-form-item>
         <el-form-item>
-            <el-button type="primary">保存</el-button>
+            <el-button type="primary" @click="save">保存</el-button>
             <el-button type="primary" @click="cancel">取消</el-button>
         </el-form-item>
     </el-form>
@@ -57,8 +60,8 @@
 
 <script setup lang="ts">
 import { ref, computed } from "vue";
-import type { hasSaleAttr, saleAttr, spuImg, trademark, spuData, hasSaleAttrResponseData, saleAttrResponseData, spuHasImg, allTrademark } from '@/api/product/spu/type';
-import { reqAllTrademark, reqSpuImageList, reqspuHasSaleAttr, reqAllSaleAttr } from "@/api/product/spu/index";
+import type { saleAttrValue, hasSaleAttr, saleAttr, spuImg, trademark, spuData, hasSaleAttrResponseData, saleAttrResponseData, spuHasImg, allTrademark } from '@/api/product/spu/type';
+import { reqAllTrademark, reqSpuImageList, reqspuHasSaleAttr, reqAllSaleAttr, reqSaveOrUpdateSpu } from "@/api/product/spu/index";
 import type { UploadProps } from "element-plus";
 
 defineOptions({ name: "SpuForm" });
@@ -84,7 +87,7 @@ let saleAttrIdAndValueName = ref<string>("");
 
 
 function cancel() {
-    emit("changeScene", 0);
+    emit("changeScene", {flag:0,params:""});
 }
 
 /**
@@ -136,7 +139,8 @@ function handlePictureCardPreview(file: any) {
  * @param file 上传的图片
  */
 function handleUpload(file: any) {
-    if (file.type === "image/png" || file.type === "image/jpg" || file.type === "image/gif") {
+    console.log(file)
+    if (file.type === "image/png" || file.type === "image/jpg" || file.type === "image/jpeg" || file.type === "image/gif") {
         if (file.size / 1024 / 1024 < 3) {
             return true;
         } else {
@@ -162,7 +166,7 @@ const unSelectSaleAttr = computed(() => {
  * 添加销售属性
  */
 function addSaleAttr() {
-    if(!saleAttrIdAndValueName.value) return;
+    if (!saleAttrIdAndValueName.value) return;
     const [saleAttrId, saleAttrName] = saleAttrIdAndValueName.value.split(":");
     let newSaleAttr: saleAttr = {
         baseSaleAttrId: Number(saleAttrId),
@@ -174,7 +178,82 @@ function addSaleAttr() {
     saleAttrIdAndValueName.value = "";
 }
 
-defineExpose({ initHasSpuData });
+function toEdit(row: saleAttr) {
+    // 动态添加一个属性
+    row.flag = true;
+    row.saleAttrValue = ""
+}
+function toLook(row: saleAttr) {
+    // 整理收集到的属性值和属性id
+    const { baseSaleAttrId, saleAttrValue } = row;
+    let newSaleAttrVale: saleAttrValue = {
+        baseSaleAttrId,
+        saleAttrValueName: saleAttrValue || ""
+    }
+    // 非法情况
+    if ((saleAttrValue as string).trim() === "") {
+        ElMessage.error("属性值不能为空");
+        row.flag = false;
+        return;
+    }
+    // 判重
+    let repeat = row.spuSaleAttrValueList.find(item => {
+        return item.saleAttrValueName == saleAttrValue;
+    });
+    if (repeat) {
+        ElMessage.error("属性值重复");
+        row.flag = false;
+        return;
+    }
+    row.spuSaleAttrValueList.push(newSaleAttrVale);
+    row.flag = false;
+}
+
+async function save() {
+    // 整理数据
+    // 照片墙数据
+    spuParams.value.spuImageList = imgList.value.map((item: any) => {
+        return {
+            imgName: item.name,
+            imgUrl: (item.response && item.response.data) || item.url
+        }
+    });
+    spuParams.value.spuSaleAttrList = saleAttrs.value;
+    const res = await reqSaveOrUpdateSpu(spuParams.value);
+    // console.log(res);
+
+    if (res.code === 200) {
+        ElMessage({ type: "success", message: spuParams.id ? '更新成功' : '添加成功' });
+        emit("changeScene", {flag:0,params:spuParams.value.id?'update':'add'});
+    } else {
+        ElMessage({ type: "error", message: spuParams.id ? '更新失败' : '添加失败' });
+    }
+
+}
+// 添加新的spu
+async function initAddSpu(c3Id: number | string) {
+    // 清空数据
+    Object.assign(spuParams, {
+        id:"",
+        category3Id: "",
+        spuName: "",
+        description: "",
+        tmId: "",
+        spuSaleAttrList: [],
+        spuImageList: []
+    });
+    imgList.value = [];
+    saleAttrs.value = [];
+    saleAttrIdAndValueName.value = "";
+
+    spuParams.value.category3Id = c3Id;
+    let res: allTrademark = await reqAllTrademark();
+    let res1: hasSaleAttrResponseData = await reqAllSaleAttr();
+    allTrademarks.value = res.data;
+    allSaleAttrs.value = res1.data;
+}
+
+defineExpose({ initHasSpuData, initAddSpu });
 </script>
 
 <style scoped></style>
