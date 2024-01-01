@@ -18,4 +18,4 @@ export const reqCancelSaleSku = (skuId: number) => axios.get<any, any>(API.CANCE
 
 export const reqSkuInfo = (skuId: number) => axios.get<any, skuInfoData>(API.SKU_INFO_URL + `/${skuId}`);
 
-export const reqDeleteSku = (skuId: number) => axios.delete<any, any>(SPI.DELETE_SKU_URL + `/${skuId}`);
+export const reqDeleteSku = (skuId: number) => axios.delete<any, any>(API.DELETE_SKU_URL + `/${skuId}`);

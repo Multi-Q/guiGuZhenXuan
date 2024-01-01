@@ -17,7 +17,8 @@
                         @click="updateSale(row)"></el-button>
                     <el-button type="primary" size="small" icon="Edit" @click="updateSku"></el-button>
                     <el-button type="primary" size="small" icon="infoFilled" @click="findSku(row)"></el-button>
-                    <el-popconfirm title="你确定删除吗?" width="220px" @confirm="removeSku(row.id)">
+                    <el-popconfirm title="你确定删除吗?" confirm-button-text="确定" cancel-button-text="取消" width="220px"
+                        @confirm="removeSku(row.id)">
                         <template #reference>
                             <el-button type="primary" size="small" icon="Delete"></el-button>
                         </template>
@@ -78,7 +79,7 @@
 </template>
 
 <script setup lang="ts">
-import { reqCancelSaleSku, reqSaleSku, reqSkuList, reqSkuInfo ,reqDeleteSku} from "@/api/product/sku/index";
+import { reqCancelSaleSku, reqSaleSku, reqSkuList, reqSkuInfo, reqDeleteSku } from "@/api/product/sku/index";
 import type { skuResponseData, skuData, skuInfoData } from "@/api/product/sku/type";
 import { ref, onMounted } from "vue";
 
@@ -131,12 +132,12 @@ async function findSku(row: skuData) {
 
     skuInfo.value = res.data;
 }
-async function removeSku(id:number){
-    const res:any=await reqDeleteSku(id);
-    if(res.code===200){
+async function removeSku(id: number) {
+    const res: any = await reqDeleteSku(id);
+    if (res.code === 200) {
         ElMessage.success("删除成功");
-        getHasSku(skuArr.value.length>1?pageNo.value:pageNo.value-1);
-    }else{
+        getHasSku(skuArr.value.length > 1 ? pageNo.value : pageNo.value - 1);
+    } else {
         ElMessage.error("系统数据，不能删除");
     }
 }
