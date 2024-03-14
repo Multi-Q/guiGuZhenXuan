@@ -26,8 +26,8 @@
                         <el-button type="primary" size="small" icon="User" @click="setPermission(row)">分配权限</el-button>
                         <el-button type="primary" size="small" icon="Edit" @click="updateRole(row)">编辑</el-button>
                         <el-popconfirm title="你确定删除这个用户信息吗？" width="200px" confirm-button-text="确定" cancel-button-text="取消"
-                            @confirm="deleteUser(row.id)">
-                            <template #reference>
+                            @confirm="deleteRole(row.id)">
+                            <template #reference >
                                 <el-button type="primary" size="small" icon="Delete">删除</el-button>
                             </template>
                         </el-popconfirm>
@@ -51,30 +51,30 @@
                 <el-button type="primary" @click="save">确定</el-button>
             </template>
         </el-dialog>
-        
-        
+
         <!-- 分配权限 -->
         <el-drawer v-model="drawerVisible">
-        <template #header>
-            <h3>分配菜单与按钮权限</h3>
-        </template>
-        <template #default>
-           <el-tree></el-tree>
-        </template>
-        <template #footer>
-            <el-button type="primary" @click="drawerVisible = false">取消</el-button>
-            <el-button type="primary" @click="confirmClick">确定</el-button>
-        </template>
-    </el-drawer>
-
+            <template #header>
+                <h3>分配菜单与按钮权限</h3>
+            </template>
+            <template #default>
+                <el-tree ref="tree" :data="menuArr" show-checkbox node-key="id" default-expand-all :props="defaultProps"
+                    :default-checked-keys="selectArr">
+                </el-tree>
+            </template>
+            <template #footer>
+                <el-button type="primary" @click="drawerVisible = false">取消</el-button>
+                <el-button type="primary" @click="confirmClick">确定</el-button>
+            </template>
+        </el-drawer>
 
     </div>
 </template>
 
 <script setup lang="ts">
 import { ref, reactive, onMounted, nextTick } from "vue";
-import { reqAllRoleList, reqAddOrUpdateRole } from "@/api/acl/role/index";
-import type { roleData, roleResponseData } from "@/api/acl/role/type";
+import { reqAllRoleList, reqAddOrUpdateRole, reqAllMenuList, reqSetpermission, reqRemoveRole } from "@/api/acl/role/index";
+import type { menuData, menuResponseData, roleData, roleResponseData } from "@/api/acl/role/type";
 import useLayoutSettingStore from "@/stores/modules/setting";
 
 defineOptions({ name: "Role" });
@@ -102,8 +102,11 @@ let rules = {
         }
     ]
 }
-let drawerVisible=ref<boolean>(false);
-
+let drawerVisible = ref<boolean>(false);
+let menuArr = ref<menuData[]>([]);
+const defaultProps = { children: 'children', label: 'name', }
+let selectArr = ref<number[]>([]);
+let tree = ref<any>();
 
 async function getHasRole(pager: number = 1) {
     pageNo.value = pager;
@@ -153,9 +156,44 @@ async function save() {
 
 }
 
-function setPermission(row:roleData){
-
+async function setPermission(row: roleData) {
+    drawerVisible.value = true;
+    Object.assign(roleParams, row);
+    const res: menuResponseData = await reqAllMenuList((roleParams.id as number));
+    if (res.code === 200) {
+        menuArr.value = res.data;
+        selectArr = fliterSelectArr(menuArr.value, []);
+    }
 }
+function fliterSelectArr(allData: any, initArr: any) {
+    allData.forEach((item: any) => {
+        if (item.select && item.level === 4) initArr.push(item.id);
+        if (item.children && item.children.length > 0) fliterSelectArr(item.children, initArr);
+    });
+    return initArr;
+}
+
+async function confirmClick() {
+    let arr = tree.value.getCheckedKeys();
+    let arr1 = tree.value.getHalfCheckedKeys();
+    const res: any = await reqSetpermission((roleParams.id as number), arr.concat(arr1));
+    if(res.code===200){
+        drawerVisible.value=false;
+        ElMessage.success("分配成功");
+        window.location.reload();
+    }
+}
+
+async function deleteRole(roleId:number){
+    const res:any=await reqRemoveRole(roleId);
+    if(res.code===200){
+        ElMessage.success("删除成功");
+        getHasRole(allRole.value.length>1?pageNo.value:pageNo.value-1);
+    }else{
+        ElMessage.error("删除失败");
+    }
+}
+
 
 
 onMounted(() => { getHasRole(); });

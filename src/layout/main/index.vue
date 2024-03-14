@@ -25,7 +25,7 @@ watch(() => layoutSettingStore.refresh, () => {
 <style scoped lang="scss">
 .fade-enter-from {
     opacity: 0;
-    transform: scale(0);
+   
 }
 
 .fade-enter-active {
@@ -34,6 +34,6 @@ watch(() => layoutSettingStore.refresh, () => {
 
 .fade-enter-to {
     opacity: 1;
-    transform: scale(1);
+   
 }
 </style>
