@@ -5,7 +5,7 @@
             <el-col :span="12" :xs="24">
                 <el-form class="login-form" :rules="rules" :model="loginForm" ref="loginForms">
                     <h1>Hello</h1>
-                    <h2>欢迎来到硅谷甄选</h2>
+                    <h2>欢迎来到甄选平台</h2>
                     <el-form-item prop="username">
                         <el-input :prefix-icon="User" v-model="loginForm.username"></el-input>
                     </el-form-item>
@@ -38,7 +38,7 @@ const route = useRoute();
 // 登陆表单
 const loginForm = reactive<any>({
     username: "admin",
-    password: "atguigu123"
+    password: "111111"
 });
 // 表单校验对象
 const rules = reactive({
